@@ -10,7 +10,7 @@ const storeState = () => {
   };
 };
 
-let plants = [];
+const plants = [];
 //first default plant
 plants.push(storeState());
 
@@ -28,27 +28,31 @@ const changeState = (prop) => {
 };
 
 // We create four functions using our function factory. We could easily create many more.
-
-const feed = changeState("soil")(1);
+const props = {};
 // const blueFood = changeState("soil")(5);
-
-const hydrate = changeState("water")(1);
 // const superWater = changeState("water")(5);
 
 $(document).ready(function () {
   // This function has side effects because we are using jQuery. Manipulating the DOM will always be a side effect. Note that we only use one of our functions to alter soil. You can easily add more.
   let index = 2;
+  function createClickForButton(buttonText) {
+    $(`#${buttonText}`).on("click", function () {
+      const index = $(".plant").attr("id");
+      const newState = plants[index - 1](props[buttonText]);
+      $(`#${buttonText}-value`).text(`${buttonText}: ${newState[buttonText]}`);
+    });
+  }
 
-  $("#feed").on("click", function () {
+  $("#add-prop").on("click", function () {
     const index = $(".plant").attr("id");
-    const newState = plants[index - 1](feed);
-    $("#soil-value").text(`Soil: ${newState.soil}`);
-  });
+    const property = $("#prop").val();
+    const value = parseInt($("#value").val());
+    const newState = plants[index - 1](changeState(property)(0));
+    $("#newAdds").append(`<h3><div id="${property}-value">${property}: ${newState[property]}</div></h3>`);
+    $("#prop-button").append(`<button id=${property} class="btn btn-success mx-3">Add ${property}</button>`);
 
-  $("#water").on("click", function () {
-    const index = $(".plant").attr("id");
-    const newState = plants[index - 1](hydrate);
-    $("#water-value").text(`Water: ${newState.water}`);
+    props[property] = changeState(property)(value);
+    createClickForButton(property);
   });
 
   $("#new").on("click", function () {
@@ -57,20 +61,16 @@ $(document).ready(function () {
     index++;
   });
 
-  $("#select").on("click", function () {
+  $("#plants-list").on("change", function () {
+    $("#newAdds").empty();
+    $("#prop-button").empty();
     let index = $("#plants-list :selected").val();
-    let soil = plants[index - 1]().soil;
-    let water = plants[index - 1]().water;
-    console.log(soil, water);
-    if (!isNaN(soil)) {
-      $("#soil-value").text(`Soil: ${soil}`);
-    } else {
-      $("#soil-value").text(`Soil: 0`);
-    }
-    if (water > 0) {
-      $("#water-value").text(`Water: ${water}`);
-    } else {
-      $("#water-value").text(`Water: 0`);
+    for (const [key] of Object.entries(plants[index - 1]())) {
+      let dynamicVal = plants[index - 1]()[key];
+      console.log(dynamicVal + " key here: " + key);
+      $("#newAdds").append(`<h3><div id="${key}-value">${key}: ${dynamicVal}</div></h3>`);
+      $("#prop-button").append(`<button id=${key} class="btn btn-success me-3">Add ${key}</button>`);
+      createClickForButton(key);
     }
     $("#name").text(`Plant ${index} Values`);
     $(".plant").attr("id", `${index}`);
