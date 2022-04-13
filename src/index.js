@@ -11,6 +11,7 @@ const storeState = () => {
 };
 
 let plants = [];
+//first default plant
 plants.push(storeState());
 
 // const stateControl = storeState();
